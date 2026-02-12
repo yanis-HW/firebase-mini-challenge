@@ -19,6 +19,23 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+document.getElementById("send").onclick = () => {
+  if (!auth.currentUser) {
+    return; 
+  }
+
+  const message = document.getElementById("message").value;
+  if (message === "") return; // on envoie rien
+
+  addDoc(collection(db, "messages"), {
+    text: message,                 
+    user: auth.currentUser.email,  
+    timestamp: new Date(),
+  })
+
+  document.getElementById("message").value = ""; 
+};
+
 document.getElementById("register").onclick = () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
