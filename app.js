@@ -10,9 +10,12 @@ import {
   getFirestore,
   collection,
   addDoc,
-  onSnapshot
+  onSnapshot,
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-import { query, orderBy } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+import {
+  query,
+  orderBy,
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAKTpZBXfQXgzXyy3LT4fEMhJUeREoJCCw",
@@ -29,19 +32,19 @@ const db = getFirestore(app);
 
 document.getElementById("send").onclick = () => {
   if (!auth.currentUser) {
-    return; 
+    return;
   }
 
   const message = document.getElementById("message").value;
   if (message === "") return; // on envoie rien
 
   addDoc(collection(db, "messages"), {
-    text: message,                 
-    user: auth.currentUser.email,  
+    text: message,
+    user: auth.currentUser.email,
     timestamp: new Date(),
-  })
+  });
 
-  document.getElementById("message").value = ""; 
+  document.getElementById("message").value = "";
 };
 
 document.getElementById("register").onclick = () => {
@@ -54,7 +57,7 @@ document.getElementById("register").onclick = () => {
       document.getElementById("password").value = "";
     })
     .catch((error) => {
-      alert(error.message);
+      alert("Erreur lors de la création du compte : " + error.message);
     });
 };
 
@@ -67,7 +70,7 @@ document.getElementById("login").onclick = () => {
       document.getElementById("password").value = "";
     })
     .catch((error) => {
-      alert(error.message);
+      alert("Compte ou mot de passe incorrect");
     });
 };
 
@@ -101,12 +104,12 @@ onAuthStateChanged(auth, (user) => {
 
 const messagesQuery = query(
   collection(db, "messages"),
-  orderBy("timestamp", "desc")
+  orderBy("timestamp", "desc"),
 );
 
 onSnapshot(messagesQuery, (snapshot) => {
   let html = "";
-  snapshot.forEach(doc => {
+  snapshot.forEach((doc) => {
     const data = doc.data();
     const time = data.timestamp?.toDate().toLocaleString() || "";
     html += `<p><strong>${data.user}</strong> (${time}) : ${data.text}</p>`;
