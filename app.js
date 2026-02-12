@@ -1,8 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
-console.log("Hello Firebase!");
 const firebaseConfig = {
   apiKey: "AIzaSyAKTpZBXfQXgzXyy3LT4fEMhJUeREoJCCw",
   authDomain: "fir-mini-challenge-be7e5.firebaseapp.com",
@@ -13,47 +17,58 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 const auth = getAuth(app);
 
-function signIn() {
+document.getElementById("register").onclick = () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-
-  auth
-    .signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      // Signed in successfully
-      const user = userCredential.user;
-      console.log("Signed in as:", user.email);
-    })
-    .catch((error) => {
-      console.error("Sign in error:", error.message);
-    });
-}
-
-function signUp() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  auth
-    .createUserWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      // Signed up successfully
-      const user = userCredential.user;
-      console.log("Signed up as:", user.email);
-    })
-    .catch((error) => {
-      console.error("Sign up error:", error.message);
-    });
-}
-
-function signOut() {
-  signOut(auth)
+  createUserWithEmailAndPassword(auth, email, password)
     .then(() => {
-      // Sign-out successful.
+      alert("Compte créé !");
+      document.getElementById("email").value = "";
+      document.getElementById("password").value = "";
     })
     .catch((error) => {
-      // An error happened.
+      alert(error.message);
     });
+};
+
+document.getElementById("login").onclick = () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      document.getElementById("email").value = "";
+      document.getElementById("password").value = "";
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+};
+
+document.getElementById("logout").onclick = () => {
+  signOut(auth);
+};
+
+function updateInterface(user) {
+  const authSection = document.getElementById("auth-section");
+  const registerBtn = document.getElementById("register");
+  const loginBtn = document.getElementById("login");
+  const logoutBtn = document.getElementById("logout");
+  const emailButton = document.getElementById("email");
+  const passwordButton = document.getElementById("password");
+
+  if (user) {
+    authSection.style.display = "none";
+    logoutBtn.style.display = "inline-block";
+  } else {
+    authSection.style.display = "block";
+    registerBtn.style.display = "inline-block";
+    loginBtn.style.display = "inline-block";
+    logoutBtn.style.display = "none";
+  }
 }
+
+onAuthStateChanged(auth, (user) => {
+  updateInterface(user);
+});
