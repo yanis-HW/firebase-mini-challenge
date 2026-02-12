@@ -7,10 +7,12 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 import {
+  getFirestore,
   collection,
   addDoc,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+import { query, orderBy } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAKTpZBXfQXgzXyy3LT4fEMhJUeREoJCCw",
@@ -78,20 +80,36 @@ function updateInterface(user) {
   const registerBtn = document.getElementById("register");
   const loginBtn = document.getElementById("login");
   const logoutBtn = document.getElementById("logout");
-  const emailButton = document.getElementById("email");
-  const passwordButton = document.getElementById("password");
+  const chatSection = document.getElementById("chat-section");
 
   if (user) {
     authSection.style.display = "none";
     logoutBtn.style.display = "inline-block";
+    chatSection.style.display = "block";
   } else {
     authSection.style.display = "block";
     registerBtn.style.display = "inline-block";
     loginBtn.style.display = "inline-block";
     logoutBtn.style.display = "none";
+    chatSection.style.display = "none";
   }
 }
 
 onAuthStateChanged(auth, (user) => {
   updateInterface(user);
+});
+
+const messagesQuery = query(
+  collection(db, "messages"),
+  orderBy("timestamp", "desc")
+);
+
+onSnapshot(messagesQuery, (snapshot) => {
+  let html = "";
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    const time = data.timestamp?.toDate().toLocaleString() || "";
+    html += `<p><strong>${data.user}</strong> (${time}) : ${data.text}</p>`;
+  });
+  document.getElementById("messages").innerHTML = html;
 });
